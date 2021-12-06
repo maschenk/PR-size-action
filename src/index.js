@@ -5,17 +5,17 @@ const run = async () => {
   const token = core.getInput('GITHUB_TOKEN');
 
   const octokit = github.getOctokit(token);
-  const { pull_request } = github.context.payload;
-  const { additions: totalAdditions, deletions: totalDeletions, number, owner, repo } = pull_request;
-  console.log(github.context.payload);
+  const { pull_request, repository, number } = github.context.payload;
+  const { additions: totalAdditions, deletions: totalDeletions } = pull_request;
+ 
   let changedFiles;
-  /* try {
+  try {
     changedFiles = await octokit.rest.pulls.listFiles({
-      owner, repo: repo.name, number
+      owner: repository.owner, repo: repository.name, number
     });
   } catch(error) {
     console.log(error.message);
-  } */
+  } 
 
   console.log(totalAdditions, totalDeletions, changedFiles);
 };
