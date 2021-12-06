@@ -8451,11 +8451,11 @@ const run = async () => {
   const octokit = github.getOctokit(token);
   const { pull_request, repository, number } = github.context.payload;
   const { additions: totalAdditions, deletions: totalDeletions } = pull_request;
- 
+  console.log(repository.owner.login, repository.name, number);
   let changedFiles;
   try {
     changedFiles = await octokit.rest.pulls.listFiles({
-      owner: repository.owner, repo: repository.name, pull_number: number
+      owner: repository.owner.login, repo: repository.name, pull_number: number
     });
   } catch(error) {
     console.log(error.message);
