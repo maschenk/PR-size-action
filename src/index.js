@@ -11,7 +11,7 @@ const run = async () => {
   let changedFiles;
   try {
     changedFiles = await octokit.rest.pulls.listFiles({
-      owner: repository.owner, repo: repository.name, number
+      owner: repository.owner, repo: repository.name, pull_number: number
     });
   } catch(error) {
     console.log(error.message);
