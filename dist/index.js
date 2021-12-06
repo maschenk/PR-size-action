@@ -8451,7 +8451,7 @@ const run = async () => {
   const octokit = github.getOctokit(token);
   const { pull_request } = github.context.payload;
   const { additions: totalAdditions, deletions: totalDeletions, number, owner, repo } = pull_request;
-
+  console.log(owner, repo, number);
   let changedFiles;
   try {
     changedFiles = await octokit.rest.pulls.listFiles({
@@ -8460,7 +8460,7 @@ const run = async () => {
   } catch(error) {
     console.log(error.message);
   }
-  
+
   console.log(totalAdditions, totalDeletions, changedFiles);
 };
 
