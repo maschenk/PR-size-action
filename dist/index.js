@@ -8453,7 +8453,7 @@ const run = async () => {
   const octokit = github.getOctokit(token);
   const { pull_request, repository, number } = github.context.payload;
   const { additions: totalAdditions, deletions: totalDeletions } = pull_request;
-  let excludedAdditions, excludedDeletions;
+  let excludedAdditions, excludedDeletions = 0;
 
   try {
     const { data } = await octokit.rest.pulls.listFiles({
@@ -8461,7 +8461,8 @@ const run = async () => {
     });
     
     data.forEach((file) => {
-      console.log(file);
+      console.log(file.filename, file.additions, file.deletions);
+      console.log(expr.test(file.filename));
       if(expr.test(file.filename)) {
         excludedAdditions += file.additions;
         excludedDeletions += file.deletions;
