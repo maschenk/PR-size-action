@@ -9,7 +9,8 @@ const run = async () => {
   const octokit = github.getOctokit(token);
   const { pull_request, repository, number } = github.context.payload;
   const { additions: totalAdditions, deletions: totalDeletions } = pull_request;
-  let excludedAdditions, excludedDeletions = 0;
+  let excludedAdditions = 0;
+  let excludedDeletions = 0;
 
   try {
     const { data } = await octokit.rest.pulls.listFiles({
