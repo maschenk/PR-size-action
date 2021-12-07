@@ -12,3 +12,4 @@ jobs:
       - uses: ./
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          ignore_files: '(package-lock.json|dist\/index.js)'
