@@ -8448,7 +8448,7 @@ const github = __nccwpck_require__(2551);
 const run = async () => {
   const token = core.getInput('GITHUB_TOKEN');
   const ignoredFiles = core.getInput('ignore_files');
-  const expr = new RegExp(`/[a-zA-Z0-9]*${ignoredFiles}/g`);
+  const expr = new RegExp(`[a-zA-Z0-9]*${ignoredFiles}`);
   console.log(expr);
   const octokit = github.getOctokit(token);
   const { pull_request, repository, number } = github.context.payload;
