@@ -3,7 +3,7 @@ const github = require('@actions/github');
 
 const run = async () => {
   const token = core.getInput('GITHUB_TOKEN');
-  const ignoredFiles = JSON.parse(core.getInput('ignore_files'));
+  const ignoredFiles = core.getInput('ignore_files');
   const expr = new RegExp(`/[a-zA-Z0-9]*${ignoredFiles}/g`);
 
   const octokit = github.getOctokit(token);
