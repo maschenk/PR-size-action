@@ -10,6 +10,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
       - uses: ./
+        id: cleaned-size
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
           ignore_files: '(package-lock.json|dist\/index.js)'
+      - uses: actions-ecosystem/action-remove-labels@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          labels: ${{ steps.cleaned-size.outputs.stale_labels }}
+
+      - uses: actions-ecosystem/action-add-labels@v1
+        with:
+          github_token: ${{ secrets.github_token }}
+          labels: ${{ steps.cleaned-size.outputs.new_label }}
