@@ -1,0 +1,18 @@
+name: PR size
+description: calculate PR size and add label
+inputs:
+  GITHUB_TOKEN:
+    description: gh token for authentication
+    required: true
+  ignore_files:
+    description: capturing group of files to be ignored, pls remember escaping special chars
+    required: false
+    default: ''
+outputs:
+  new_label:
+    description: The new label's name to be added. If there's no label to be added, it the value is `''`.
+  stale_labels:
+    description: The stale label's name to be removed.
+runs:
+  using: node12
+  main: dist/index.js
