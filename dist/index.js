@@ -8514,25 +8514,15 @@ const labelOptions = {
 
 
 
-const token = core_default().getInput('GITHUB_TOKEN');
-const ignoredFiles = core_default().getInput('ignore_files');
-const octokit = github_default().getOctokit(token);
+
 
 const run = async () => {
   const { pull_request, repository, number } = (github_default()).context.payload;
-
+  const token = core_default().getInput('GITHUB_TOKEN');
+  const ignoredFiles = core_default().getInput('ignore_files');
+  const octokit = github_default().getOctokit(token);
   const { changes: totalChanges } = pull_request;
-  const cleanedChanges = totalChanges - getExcludedChanges(repository, number);
-  const currentLabels = getCurrentLabels(pull_request.labels);
-  const desiredLabel = getDesiredLabel(cleanedChanges);
-  const newLabel = currentLabels.includes(desiredLabel) ? '' : desiredLabel;
-  const staleLabels = currentLabels.filter(label => label !== desiredLabel);
 
-  core_default().setOutput('new_label', newLabel);
-  core_default().setOutput('stale_label', staleLabels);
-  };
-
-const getExcludedChanges = async (repository, number) => {
   let excludedChanges = 0;
   if (ignoredFiles.length > 0) {
     const expr = new RegExp(`[a-zA-Z0-9]*${ignoredFiles}`);
@@ -8552,8 +8542,15 @@ const getExcludedChanges = async (repository, number) => {
       console.log(error.message);
     };
   };
-  return excludedChanges;
-};
+  const cleanedChanges = totalChanges - excludedChanges;
+  const currentLabels = getCurrentLabels(pull_request.labels);
+  const desiredLabel = getDesiredLabel(cleanedChanges);
+  const newLabel = currentLabels.includes(desiredLabel) ? '' : desiredLabel;
+  const staleLabels = currentLabels.filter(label => label !== desiredLabel);
+
+  core_default().setOutput('new_label', newLabel);
+  core_default().setOutput('stale_label', staleLabels);
+  };
 
 // getDesiredLabel
 const getDesiredLabel = (cleanedChanges) => {
