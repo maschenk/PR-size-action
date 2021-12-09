@@ -20,7 +20,7 @@ const run = async () => {
   core.setOutput('stale_label', staleLabels);
   };
 
-const getExcludedChanges = (repository, number) => {
+const getExcludedChanges = async (repository, number) => {
   let excludedChanges = 0;
   if (ignoredFiles.length > 0) {
     const expr = new RegExp(`[a-zA-Z0-9]*${ignoredFiles}`);

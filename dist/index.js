@@ -8434,48 +8434,154 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	}
 /******/ 	
 /************************************************************************/
+/******/ 	/* webpack/runtime/compat get default export */
+/******/ 	(() => {
+/******/ 		// getDefaultExport function for compatibility with non-harmony modules
+/******/ 		__nccwpck_require__.n = (module) => {
+/******/ 			var getter = module && module.__esModule ?
+/******/ 				() => (module['default']) :
+/******/ 				() => (module);
+/******/ 			__nccwpck_require__.d(getter, { a: getter });
+/******/ 			return getter;
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/define property getters */
+/******/ 	(() => {
+/******/ 		// define getter functions for harmony exports
+/******/ 		__nccwpck_require__.d = (exports, definition) => {
+/******/ 			for(var key in definition) {
+/******/ 				if(__nccwpck_require__.o(definition, key) && !__nccwpck_require__.o(exports, key)) {
+/******/ 					Object.defineProperty(exports, key, { enumerable: true, get: definition[key] });
+/******/ 				}
+/******/ 			}
+/******/ 		};
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/hasOwnProperty shorthand */
+/******/ 	(() => {
+/******/ 		__nccwpck_require__.o = (obj, prop) => (Object.prototype.hasOwnProperty.call(obj, prop))
+/******/ 	})();
+/******/ 	
+/******/ 	/* webpack/runtime/make namespace object */
+/******/ 	(() => {
+/******/ 		// define __esModule on exports
+/******/ 		__nccwpck_require__.r = (exports) => {
+/******/ 			if(typeof Symbol !== 'undefined' && Symbol.toStringTag) {
+/******/ 				Object.defineProperty(exports, Symbol.toStringTag, { value: 'Module' });
+/******/ 			}
+/******/ 			Object.defineProperty(exports, '__esModule', { value: true });
+/******/ 		};
+/******/ 	})();
+/******/ 	
 /******/ 	/* webpack/runtime/compat */
 /******/ 	
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
 var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
+// This entry need to be wrapped in an IIFE because it need to be in strict mode.
 (() => {
-const core = __nccwpck_require__(257);
-const github = __nccwpck_require__(2551);
+"use strict";
+// ESM COMPAT FLAG
+__nccwpck_require__.r(__webpack_exports__);
+
+// EXTERNAL MODULE: ./node_modules/@actions/core/lib/core.js
+var core = __nccwpck_require__(257);
+var core_default = /*#__PURE__*/__nccwpck_require__.n(core);
+// EXTERNAL MODULE: ./node_modules/@actions/github/lib/github.js
+var github = __nccwpck_require__(2551);
+var github_default = /*#__PURE__*/__nccwpck_require__.n(github);
+;// CONCATENATED MODULE: ./src/constants.js
+const thresholdOptions = {
+  sizeSThreshold: 10,
+  sizeMThreshold: 30,
+  sizeLThreshold: 100,
+  sizeXLThreshold: 500,
+  sizeXXLThreshold: 1000
+};
+
+const labelOptions = {
+  sizeXSLabel: 'size/XS',
+  sizeSLabel: 'size/S',
+  sizeMLabel: 'size/M',
+  sizeLLabel: 'size/L',
+  sizeXLLabel: 'size/XL',
+  sizeXXLLabel: 'size/XXL'
+};
+;// CONCATENATED MODULE: ./src/index.js
+
+
+
+
+const token = core_default().getInput('GITHUB_TOKEN');
+const ignoredFiles = core_default().getInput('ignore_files');
+const octokit = github_default().getOctokit(token);
 
 const run = async () => {
-  const token = core.getInput('GITHUB_TOKEN');
-  const ignoredFiles = core.getInput('ignore_files');
-  const expr = new RegExp(`[a-zA-Z0-9]*${ignoredFiles}`);
-  console.log(expr);
-  const octokit = github.getOctokit(token);
-  const { pull_request, repository, number } = github.context.payload;
-  const { additions: totalAdditions, deletions: totalDeletions } = pull_request;
-  let excludedAdditions = 0;
-  let excludedDeletions = 0;
+  const { pull_request, repository, number } = (github_default()).context.payload;
 
-  try {
-    const { data } = await octokit.rest.pulls.listFiles({
-      owner: repository.owner.login, repo: repository.name, pull_number: number
-    });
-    
-    data.forEach((file) => {
-      console.log(file.filename, file.additions, file.deletions);
-      console.log(expr.test(file.filename));
-      if(expr.test(file.filename)) {
-        excludedAdditions += file.additions;
-        excludedDeletions += file.deletions;
-      }
-    })
+  const { changes: totalChanges } = pull_request;
+  const cleanedChanges = totalChanges - getExcludedChanges(repository, number);
+  const currentLabels = getCurrentLabels(pull_request.labels);
+  const desiredLabel = getDesiredLabel(cleanedChanges);
+  const newLabel = currentLabels.includes(desiredLabel) ? '' : desiredLabel;
+  const staleLabels = currentLabels.filter(label => label !== desiredLabel);
 
-  } catch(error) {
-    console.log(error.message);
-  } 
+  core_default().setOutput('new_label', newLabel);
+  core_default().setOutput('stale_label', staleLabels);
+  };
 
-  console.log(totalAdditions, totalDeletions, excludedAdditions, excludedDeletions);
+const getExcludedChanges = async (repository, number) => {
+  let excludedChanges = 0;
+  if (ignoredFiles.length > 0) {
+    const expr = new RegExp(`[a-zA-Z0-9]*${ignoredFiles}`);
+    try {
+      const { data } = await octokit.rest.pulls.listFiles({
+        owner: repository.owner.login, repo: repository.name, pull_number: number
+      });
+      
+      data.forEach((file) => {
+        console.log(file.filename, file.changes);
+        console.log(expr.test(file.filename));
+        if(expr.test(file.filename)) {
+          excludedChanges += file.changes;
+        }
+      });
+    } catch(error) {
+      console.log(error.message);
+    };
+  };
+  return excludedChanges;
 };
+
+// getDesiredLabel
+const getDesiredLabel = (cleanedChanges) => {
+  if (cleanedChanges > thresholdOptions.sizeSThreshold) {
+    return labelOptions.sizeXSLabel;
+  }
+  if (cleanedChanges > thresholdOptions.sizeMThreshold) {
+    return labelOptions.sizeSLabel;
+  }
+  if (cleanedChanges > thresholdOptions.sizeLThreshold) {
+    return labelOptions.sizeMLabel;
+  }
+  if (cleanedChanges > thresholdOptions.sizeXLThreshold) {
+    return labelOptions.sizeLLabel;
+  }
+  if (cleanedChanges > thresholdOptions.sizeXXLThreshold) {
+    return labelOptions.sizeXLLabel;
+  }
+  return labelOptions.sizeXXLLabel;
+};
+
+// getCurrentLabels
+const getCurrentLabels = (labels) => {
+  labels.filter((label) => {
+    Object.values(labelOptions).includes(label.name).map((label) => label.name);
+  })
+};
+
 
 run();
 })();
