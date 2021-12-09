@@ -8514,13 +8514,12 @@ const labelOptions = {
 
 
 
-
-
 const run = async () => {
-  const { pull_request, repository, number } = (github_default()).context.payload;
   const token = core_default().getInput('GITHUB_TOKEN');
   const ignoredFiles = core_default().getInput('ignore_files');
   const octokit = github_default().getOctokit(token);
+  const { pull_request, repository, number } = (github_default()).context.payload;
+  
   const { changes: totalChanges } = pull_request;
 
   let excludedChanges = 0;

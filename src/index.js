@@ -2,13 +2,12 @@ import core from '@actions/core';
 import github from '@actions/github';
 import { thresholdOptions, labelOptions } from './constants';
 
-
-
 const run = async () => {
-  const { pull_request, repository, number } = github.context.payload;
   const token = core.getInput('GITHUB_TOKEN');
   const ignoredFiles = core.getInput('ignore_files');
   const octokit = github.getOctokit(token);
+  const { pull_request, repository, number } = github.context.payload;
+  
   const { changes: totalChanges } = pull_request;
 
   let excludedChanges = 0;
